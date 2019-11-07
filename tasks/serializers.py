@@ -1,8 +1,8 @@
-from marshmallow_sqlalchemy import ModelSchema
+from ..app import db, ma
 
 from .models import Task
 
 
-class TaskSchema(ModelSchema):
+class TaskSchema(ma.ModelSchema):
     class Meta:
         model = Task

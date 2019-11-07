@@ -8,15 +8,33 @@ from flask_sqlalchemy import SQLAlchemy
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
 
+from flask_marshmallow import Marshmallow
+from flask_smorest import Api, Blueprint, abort
+
+ma = Marshmallow()
+
+
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data.sqlite')}"
-    app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+    app.config[
+        "SQLALCHEMY_DATABASE_URI"
+    ] = f"sqlite:///{os.path.join(basedir, 'data.sqlite')}"
+    app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = True
+    app.config["OPENAPI_VERSION"] = "3.0.2"
+    app.config["OPENAPI_URL_PREFIX"] = "openapi"
+    app.config["API_VERSION"] = "1"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "api"
+    app.config["OPENAPI_SWAGGER_UI_VERSION"] = "3.23.11"
 
     db.init_app(app)
 
     from .tasks.serializers import TaskSchema
     from .tasks.models import Task
+
+    api = Api(app)
+    ma.init_app(app)
+    from .tasks.views import task_blueprint
+    api.register_blueprint(task_blueprint)
 
     migrate = Migrate(app, db)
 
